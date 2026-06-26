@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import Link from "next/link";
 import { 
   User, ArrowLeft, Play, LogOut, Send, 
@@ -97,9 +97,9 @@ export default function GoOnlinePage() {
   const connectWebSocket = (gId: string, uName: string) => {
     if (wsRef.current) wsRef.current.close();
 
-    const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsProto = httpUrl.startsWith("https") ? "wss:" : "ws:";
     const cleanHost = httpUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    const wsUrl = `${wsProto}//${cleanHost}/games/${gId}/ws?username=${encodeURIComponent(uName)}`;
+    const wsUrl = `${wsProto}//${cleanHost}/go/${gId}/ws?username=${encodeURIComponent(uName)}`;
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -144,13 +144,13 @@ export default function GoOnlinePage() {
     };
   };
 
-  const handleCreateRoom = async (e: React.FormEvent) => {
+  const createLobby = async (e: React.FormEvent) => {
     e.preventDefault();
     const uName = username.trim() || "Player 1";
     const myCol = color === "BLACK" ? "BLACK" : "WHITE";
     
     try {
-      const createRes = await axios.post(`${httpUrl}games/create`, {
+      const createRes = await api.post(`go/createLobby`, {
         username: uName,
         color: myCol,
         game_type: "go",
@@ -169,7 +169,7 @@ export default function GoOnlinePage() {
     }
   };
 
-  const handleJoinRoom = async (e: React.FormEvent) => {
+  const joinLobby = async (e: React.FormEvent) => {
     e.preventDefault();
     const uName = username.trim() || "Player 2";
     const gId = gameIdInput.trim();
@@ -180,7 +180,7 @@ export default function GoOnlinePage() {
     const myCol = color === "BLACK" ? "BLACK" : "WHITE";
 
     try {
-      const joinRes = await axios.post(`${httpUrl}games/${gId}/join`, {
+      const joinRes = await api.post(`go/${gId}/joinLobby`, {
         username: uName,
         color: myCol
       });
@@ -198,7 +198,7 @@ export default function GoOnlinePage() {
   const handleStartGame = async () => {
     if (!gameId) return;
     try {
-      const startRes = await axios.post(`${httpUrl}games/${gameId}/start`);
+      const startRes = await api.post(`go/${gameId}/start`);
       setOnlineGame(startRes.data);
     } catch (err: any) {
       setErrorMsg(err.response?.data?.detail || "Failed to start match");
@@ -214,7 +214,7 @@ export default function GoOnlinePage() {
     const botCol = availableColors[0];
     
     try {
-      const res = await axios.post(`${httpUrl}games/${gameId}/add_bot`, {
+      const res = await api.post(`go/${gameId}/add_bot`, {
         username: `Computer (Bot) ${botCol}`,
         color: botCol
       });
@@ -358,7 +358,7 @@ export default function GoOnlinePage() {
           )}
 
           {actionType === "create" && (
-            <form onSubmit={handleCreateRoom} className="space-y-6">
+            <form onSubmit={createLobby} className="space-y-6">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Username</label>
                 <div className="relative">
@@ -435,7 +435,7 @@ export default function GoOnlinePage() {
           )}
 
           {actionType === "join" && (
-            <form onSubmit={handleJoinRoom} className="space-y-6">
+            <form onSubmit={joinLobby} className="space-y-6">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Room Code / Game ID</label>
                 <input

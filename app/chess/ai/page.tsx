@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
+import api from "@/lib/axios";
 import { Chess } from "chess.js";
 import Link from "next/link";
 import { 
@@ -108,9 +108,9 @@ export default function ChessAIPage() {
   const connectWebSocket = (gId: string, uName: string) => {
     if (wsRef.current) wsRef.current.close();
 
-    const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsProto = httpUrl.startsWith("https") ? "wss:" : "ws:";
     const cleanHost = httpUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    const wsUrl = `${wsProto}//${cleanHost}/games/${gId}/ws?username=${encodeURIComponent(uName)}`;
+    const wsUrl = `${wsProto}//${cleanHost}/chess/${gId}/ws?username=${encodeURIComponent(uName)}`;
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -162,7 +162,7 @@ export default function ChessAIPage() {
     const botCol = myCol === "WHITE" ? "BLACK" : "WHITE";
     
     try {
-      const createRes = await axios.post(`${httpUrl}games/create`, {
+      const createRes = await api.post(`chess/createLobby`, {
         username: uName,
         color: myCol,
         game_type: "chess",
@@ -171,12 +171,12 @@ export default function ChessAIPage() {
       const lobby = createRes.data;
       const gId = lobby.id;
       
-      await axios.post(`${httpUrl}games/${gId}/add_bot`, {
+      await api.post(`chess/${gId}/add_bot`, {
         username: `Computer (Bot) ${botCol}`,
         color: botCol
       });
       
-      const startRes = await axios.post(`${httpUrl}games/${gId}/start`);
+      const startRes = await api.post(`chess/${gId}/start`);
       
       setOnlineGame(startRes.data);
       setGameId(gId);

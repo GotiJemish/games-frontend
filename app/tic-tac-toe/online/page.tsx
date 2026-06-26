@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import api from "@/lib/axios";
 import Link from "next/link";
 import { 
   User, ArrowLeft, Play, LogOut, Sparkles, Sun, Moon, Award, Globe, Users, Copy, Send
@@ -84,9 +85,9 @@ export default function TicTacToeOnline() {
   const connectWebSocket = (gId: string, uName: string) => {
     if (wsRef.current) wsRef.current.close();
 
-    const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsProto = httpUrl.startsWith("https") ? "wss:" : "ws:";
     const cleanHost = httpUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    const wsUrl = `${wsProto}//${cleanHost}/games/${gId}/ws?username=${encodeURIComponent(uName)}`;
+    const wsUrl = `${wsProto}//${cleanHost}/tic-tac-toe/${gId}/ws?username=${encodeURIComponent(uName)}`;
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -131,13 +132,13 @@ export default function TicTacToeOnline() {
     };
   };
 
-  const handleCreateRoom = async (e: React.FormEvent) => {
+  const createLobby = async (e: React.FormEvent) => {
     e.preventDefault();
     const uName = username.trim() || "Host";
     const myCol = color === "O" ? "O" : "X";
 
     try {
-      const createRes = await axios.post(`${httpUrl}games/create`, {
+      const createRes = await api.post(`tic-tac-toe/createLobby`, {
         username: uName,
         color: myCol,
         game_type: "tic-tac-toe"
@@ -155,7 +156,7 @@ export default function TicTacToeOnline() {
     }
   };
 
-  const handleJoinRoom = async (e: React.FormEvent) => {
+  const joinLobby = async (e: React.FormEvent) => {
     e.preventDefault();
     const uName = username.trim() || "Player";
     const code = roomCodeInput.trim().toUpperCase();
@@ -166,27 +167,18 @@ export default function TicTacToeOnline() {
     }
 
     try {
-      // First fetch the game to know what color is available
-      const getRes = await axios.get(`${httpUrl}games/create`); 
-      // Actually we just try joining with the color the player didn't pick, or whatever.
-      // Wait, we can fetch game state or let them choose. But a 2P game only has the other color left.
-      // Let's call /games/{game_id}/join. First let's deduce what colors are taken.
-      // If we attempt to join, the server will error if color is taken, so we can try the opposite of host.
-      // Let's fetch the game details from backend by creating a temporary socket or simple try-catch.
-      // Wait, let's join with the opposite of our chosen color or prompt it. Let's try joining with "O" first,
-      // and if taken, join with "X". Even better: we can make a request to check what's taken, or since it's just X/O:
       let joinCol = color === "O" ? "O" : "X";
       
       let joinRes;
       try {
-        joinRes = await axios.post(`${httpUrl}games/${code}/join`, {
+        joinRes = await api.post(`tic-tac-toe/${code}/joinLobby`, {
           username: uName,
           color: joinCol
         });
       } catch (joinErr: any) {
         // If color is taken, swap it
         joinCol = joinCol === "X" ? "O" : "X";
-        joinRes = await axios.post(`${httpUrl}games/${code}/join`, {
+        joinRes = await api.post(`tic-tac-toe/${code}/joinLobby`, {
           username: uName,
           color: joinCol
         });
@@ -199,8 +191,12 @@ export default function TicTacToeOnline() {
       setIsJoined(true);
       setChatMessages([]);
       connectWebSocket(lobby.id, uName);
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || "Failed to join room. Verify code or username.");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setErrorMsg(err.response?.data?.detail || "Failed to join room. Verify code or username.");
+      } else {
+        setErrorMsg("Failed to join room. Verify code or username.");
+      }
       setTimeout(() => setErrorMsg(""), 4000);
     }
   };
@@ -208,9 +204,13 @@ export default function TicTacToeOnline() {
   const handleStartGame = async () => {
     if (!gameId) return;
     try {
-      await axios.post(`${httpUrl}games/${gameId}/start`);
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || "Failed to start game");
+      await api.post(`tic-tac-toe/${gameId}/start`);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setErrorMsg(err.response?.data?.detail || "Failed to start game");
+      } else {
+        setErrorMsg("Failed to start game");
+      }
       setTimeout(() => setErrorMsg(""), 4000);
     }
   };
@@ -298,7 +298,7 @@ export default function TicTacToeOnline() {
                 <span className="text-xs font-black uppercase text-violet-550 dark:text-violet-400 tracking-wider">Host Game</span>
                 <h2 className="text-2xl font-black">Create a Room</h2>
               </div>
-              <form onSubmit={handleCreateRoom} className="space-y-4">
+              <form onSubmit={createLobby} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-zinc-400 mb-1.5">Username</label>
                   <input
@@ -349,7 +349,7 @@ export default function TicTacToeOnline() {
                 <span className="text-xs font-black uppercase text-purple-550 dark:text-purple-400 tracking-wider">Join Friend</span>
                 <h2 className="text-2xl font-black">Join a Room</h2>
               </div>
-              <form onSubmit={handleJoinRoom} className="space-y-4">
+              <form onSubmit={joinLobby} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-zinc-400 mb-1.5">Username</label>
                   <input
@@ -362,11 +362,11 @@ export default function TicTacToeOnline() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-zinc-400 mb-1.5">Room Code (4 Chars)</label>
+                  <label className="block text-xs font-bold text-zinc-400 mb-1.5">Room Code (8 Chars)</label>
                   <input
                     type="text"
-                    maxLength={4}
-                    placeholder="Enter Code (e.g. A1B2)"
+                    maxLength={8}
+                    placeholder="Enter Code (e.g. A1B2C3D4)"
                     value={roomCodeInput}
                     onChange={(e) => setRoomCodeInput(e.target.value)}
                     className="w-full px-4 py-3 bg-zinc-100 dark:bg-zinc-950 border border-zinc-250 dark:border-zinc-800 rounded-2xl text-sm font-bold tracking-widest outline-none focus:border-purple-500 transition-all text-zinc-850 dark:text-zinc-100 uppercase placeholder:tracking-normal placeholder:font-semibold"
