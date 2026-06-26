@@ -6,7 +6,7 @@ import {
   ArrowLeft, Monitor, Globe, Shield, Sparkles, Sun, Moon 
 } from "lucide-react";
 
-export default function GoLobby() {
+export default function BingoLobby() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
@@ -30,40 +30,40 @@ export default function GoLobby() {
     {
       id: "ai",
       name: "Play vs. Computer",
-      description: "Play Go against our specialized bot engine. Perfect for practice and developing tactics.",
-      route: "/go/ai",
+      description: "Play Bingo against our intelligent bot engine. Choose your difficulty level and compete to spell B-I-N-G-O first.",
+      route: "/bingo/ai",
       icon: Shield,
-      color: "from-slate-700 to-slate-900",
-      accentColor: "text-slate-500 dark:text-slate-400",
-      bgGradient: "bg-slate-500/10 dark:bg-slate-500/20",
-      borderColor: "border-slate-500/20 hover:border-slate-500/50",
-      shadow: "shadow-slate-500/10 hover:shadow-slate-500/25",
+      color: "from-blue-600 to-indigo-650",
+      accentColor: "text-blue-500 dark:text-blue-400",
+      bgGradient: "bg-blue-500/10 dark:bg-blue-500/20",
+      borderColor: "border-blue-500/20 hover:border-blue-500/50",
+      shadow: "shadow-blue-500/10 hover:shadow-blue-500/25",
       badge: "Single Player"
     },
     {
       id: "local",
       name: "Pass & Play",
-      description: "Play Go offline on a single device. Features local group capturing, Ko checking, and area score calculation.",
-      route: "/go/local",
+      description: "Play locally with a friend on the same device. Boards are displayed side-by-side with automatic line trackers.",
+      route: "/bingo/local",
       icon: Monitor,
-      color: "from-[#dfaf70] to-[#c99553]",
-      accentColor: "text-amber-600 dark:text-amber-500",
-      bgGradient: "bg-amber-550/10 dark:bg-amber-550/20",
-      borderColor: "border-amber-500/20 hover:border-amber-500/50",
-      shadow: "shadow-amber-500/10 hover:shadow-amber-500/25",
+      color: "from-emerald-600 to-teal-550",
+      accentColor: "text-emerald-500 dark:text-emerald-455",
+      bgGradient: "bg-emerald-500/10 dark:bg-emerald-500/20",
+      borderColor: "border-emerald-500/20 hover:border-emerald-500/50",
+      shadow: "shadow-emerald-500/10 hover:shadow-emerald-500/25",
       badge: "Local 2P"
     },
     {
       id: "online",
       name: "Online Multiplayer",
-      description: "Create or join a real-time lobby using WebSockets. Play with friends online and track captured stones.",
-      route: "/go/online",
+      description: "Create or join a private room to play Bingo in real-time using WebSockets. Complete rows/cols to win.",
+      route: "/bingo/online",
       icon: Globe,
-      color: "from-indigo-600 to-slate-800",
-      accentColor: "text-indigo-500 dark:text-indigo-400",
-      bgGradient: "bg-indigo-500/10 dark:bg-indigo-500/20",
-      borderColor: "border-indigo-500/20 hover:border-indigo-500/50",
-      shadow: "shadow-indigo-500/10 hover:shadow-indigo-500/25",
+      color: "from-purple-600 to-fuchsia-650",
+      accentColor: "text-purple-500 dark:text-purple-455",
+      bgGradient: "bg-purple-500/10 dark:bg-purple-500/20",
+      borderColor: "border-purple-500/20 hover:border-purple-500/50",
+      shadow: "shadow-purple-500/10 hover:shadow-purple-500/25",
       badge: "Real-time"
     }
   ];
@@ -71,12 +71,12 @@ export default function GoLobby() {
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-slate-900/10 dark:bg-slate-900/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-amber-900/10 dark:bg-amber-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-blue-900/10 dark:bg-blue-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-purple-900/10 dark:bg-purple-900/20 blur-[120px] pointer-events-none" />
 
       {/* Header Tools */}
       <div className="absolute top-6 left-6 z-20">
-        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
+        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
           <ArrowLeft className="w-4 h-4" /> Back to Arcade
         </Link>
       </div>
@@ -85,7 +85,7 @@ export default function GoLobby() {
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
+          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -94,14 +94,14 @@ export default function GoLobby() {
       <div className="w-full max-w-5xl z-10 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-850 text-white shadow-xl shadow-slate-850/35 mb-2 animate-bounce">
-            <span className="font-extrabold text-3xl tracking-tighter">G</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-550 text-white shadow-xl shadow-blue-500/20 mb-2 animate-bounce">
+            <span className="font-black text-3xl tracking-tighter">B</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-slate-700 dark:from-slate-400 via-amber-650 dark:via-amber-500 to-slate-800 dark:to-slate-400 bg-clip-text text-transparent">
-            Royal Go (Weiqi)
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-550 dark:from-blue-400 via-indigo-550 dark:via-indigo-400 to-purple-550 dark:to-purple-400 bg-clip-text text-transparent">
+            Royal Bingo
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-base max-w-md mx-auto">
-            Experience the ancient game of surrounding territory. Select your game mode to begin.
+            Choose a number, cross your grid, and light up the letters to declare Bingo!
           </p>
         </div>
 

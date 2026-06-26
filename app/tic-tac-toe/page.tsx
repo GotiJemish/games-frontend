@@ -6,7 +6,7 @@ import {
   ArrowLeft, Monitor, Globe, Shield, Sparkles, Sun, Moon 
 } from "lucide-react";
 
-export default function GoLobby() {
+export default function TicTacToeLobby() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
@@ -30,40 +30,40 @@ export default function GoLobby() {
     {
       id: "ai",
       name: "Play vs. Computer",
-      description: "Play Go against our specialized bot engine. Perfect for practice and developing tactics.",
-      route: "/go/ai",
+      description: "Match your wits against our AI engine. Choose from Easy, Medium, or unbeatable Hard difficulties.",
+      route: "/tic-tac-toe/ai",
       icon: Shield,
-      color: "from-slate-700 to-slate-900",
-      accentColor: "text-slate-500 dark:text-slate-400",
-      bgGradient: "bg-slate-500/10 dark:bg-slate-500/20",
-      borderColor: "border-slate-500/20 hover:border-slate-500/50",
-      shadow: "shadow-slate-500/10 hover:shadow-slate-500/25",
+      color: "from-fuchsia-600 to-indigo-650",
+      accentColor: "text-fuchsia-500 dark:text-fuchsia-455",
+      bgGradient: "bg-fuchsia-500/10 dark:bg-fuchsia-500/20",
+      borderColor: "border-fuchsia-500/20 hover:border-fuchsia-500/50",
+      shadow: "shadow-fuchsia-500/10 hover:shadow-fuchsia-500/25",
       badge: "Single Player"
     },
     {
       id: "local",
       name: "Pass & Play",
-      description: "Play Go offline on a single device. Features local group capturing, Ko checking, and area score calculation.",
-      route: "/go/local",
+      description: "Play Tic-Tac-Toe offline with a friend on the same device. Completely serverless and instant.",
+      route: "/tic-tac-toe/local",
       icon: Monitor,
-      color: "from-[#dfaf70] to-[#c99553]",
-      accentColor: "text-amber-600 dark:text-amber-500",
-      bgGradient: "bg-amber-550/10 dark:bg-amber-550/20",
-      borderColor: "border-amber-500/20 hover:border-amber-500/50",
-      shadow: "shadow-amber-500/10 hover:shadow-amber-500/25",
+      color: "from-cyan-600 to-teal-550",
+      accentColor: "text-cyan-500 dark:text-cyan-455",
+      bgGradient: "bg-cyan-500/10 dark:bg-cyan-500/20",
+      borderColor: "border-cyan-500/20 hover:border-cyan-500/50",
+      shadow: "shadow-cyan-500/10 hover:shadow-cyan-500/25",
       badge: "Local 2P"
     },
     {
       id: "online",
       name: "Online Multiplayer",
-      description: "Create or join a real-time lobby using WebSockets. Play with friends online and track captured stones.",
-      route: "/go/online",
+      description: "Create or join a real-time multiplayer room with WebSocket state sync. Battle players across different devices.",
+      route: "/tic-tac-toe/online",
       icon: Globe,
-      color: "from-indigo-600 to-slate-800",
-      accentColor: "text-indigo-500 dark:text-indigo-400",
-      bgGradient: "bg-indigo-500/10 dark:bg-indigo-500/20",
-      borderColor: "border-indigo-500/20 hover:border-indigo-500/50",
-      shadow: "shadow-indigo-500/10 hover:shadow-indigo-500/25",
+      color: "from-violet-600 to-purple-650",
+      accentColor: "text-violet-500 dark:text-violet-455",
+      bgGradient: "bg-violet-500/10 dark:bg-violet-500/20",
+      borderColor: "border-violet-500/20 hover:border-violet-500/50",
+      shadow: "shadow-violet-500/10 hover:shadow-violet-500/25",
       badge: "Real-time"
     }
   ];
@@ -71,12 +71,12 @@ export default function GoLobby() {
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-slate-900/10 dark:bg-slate-900/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-amber-900/10 dark:bg-amber-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-fuchsia-900/10 dark:bg-fuchsia-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-cyan-900/10 dark:bg-cyan-900/20 blur-[120px] pointer-events-none" />
 
       {/* Header Tools */}
       <div className="absolute top-6 left-6 z-20">
-        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
+        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-fuchsia-600 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
           <ArrowLeft className="w-4 h-4" /> Back to Arcade
         </Link>
       </div>
@@ -85,7 +85,7 @@ export default function GoLobby() {
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
+          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-fuchsia-600 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -94,14 +94,14 @@ export default function GoLobby() {
       <div className="w-full max-w-5xl z-10 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-850 text-white shadow-xl shadow-slate-850/35 mb-2 animate-bounce">
-            <span className="font-extrabold text-3xl tracking-tighter">G</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-500 text-white shadow-xl shadow-fuchsia-500/20 mb-2 animate-pulse">
+            <span className="font-black text-3xl tracking-tighter">X / O</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-slate-700 dark:from-slate-400 via-amber-650 dark:via-amber-500 to-slate-800 dark:to-slate-400 bg-clip-text text-transparent">
-            Royal Go (Weiqi)
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-fuchsia-550 dark:from-fuchsia-400 via-purple-550 dark:via-purple-400 to-cyan-550 dark:to-cyan-400 bg-clip-text text-transparent">
+            Retro Tic-Tac-Toe
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-base max-w-md mx-auto">
-            Experience the ancient game of surrounding territory. Select your game mode to begin.
+            Enjoy the classic game of alignment. Get three marks in a row to claim victory!
           </p>
         </div>
 

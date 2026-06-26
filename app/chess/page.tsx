@@ -6,7 +6,7 @@ import {
   ArrowLeft, Monitor, Globe, Shield, Sparkles, Sun, Moon 
 } from "lucide-react";
 
-export default function GoLobby() {
+export default function ChessLobby() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
@@ -30,36 +30,36 @@ export default function GoLobby() {
     {
       id: "ai",
       name: "Play vs. Computer",
-      description: "Play Go against our specialized bot engine. Perfect for practice and developing tactics.",
-      route: "/go/ai",
+      description: "Match your wits against our Minimax Chess engine. Choose from Easy, Medium, or Hard difficulty levels.",
+      route: "/chess/ai",
       icon: Shield,
-      color: "from-slate-700 to-slate-900",
-      accentColor: "text-slate-500 dark:text-slate-400",
-      bgGradient: "bg-slate-500/10 dark:bg-slate-500/20",
-      borderColor: "border-slate-500/20 hover:border-slate-500/50",
-      shadow: "shadow-slate-500/10 hover:shadow-slate-500/25",
+      color: "from-blue-650 to-indigo-650",
+      accentColor: "text-blue-500 dark:text-blue-400",
+      bgGradient: "bg-blue-500/10 dark:bg-blue-500/20",
+      borderColor: "border-blue-500/20 hover:border-blue-500/50",
+      shadow: "shadow-blue-500/10 hover:shadow-blue-500/25",
       badge: "Single Player"
     },
     {
       id: "local",
       name: "Pass & Play",
-      description: "Play Go offline on a single device. Features local group capturing, Ko checking, and area score calculation.",
-      route: "/go/local",
+      description: "Play a classic 2-player game locally on the same device. Completely offline with no internet required.",
+      route: "/chess/local",
       icon: Monitor,
-      color: "from-[#dfaf70] to-[#c99553]",
-      accentColor: "text-amber-600 dark:text-amber-500",
-      bgGradient: "bg-amber-550/10 dark:bg-amber-550/20",
-      borderColor: "border-amber-500/20 hover:border-amber-500/50",
-      shadow: "shadow-amber-500/10 hover:shadow-amber-500/25",
+      color: "from-purple-500 to-violet-650",
+      accentColor: "text-purple-500 dark:text-purple-400",
+      bgGradient: "bg-purple-500/10 dark:bg-purple-500/20",
+      borderColor: "border-purple-500/20 hover:border-purple-500/50",
+      shadow: "shadow-purple-500/10 hover:shadow-purple-500/25",
       badge: "Local 2P"
     },
     {
       id: "online",
       name: "Online Multiplayer",
-      description: "Create or join a real-time lobby using WebSockets. Play with friends online and track captured stones.",
-      route: "/go/online",
+      description: "Host or join a real-time game room using WebSockets to play with friends across different devices.",
+      route: "/chess/online",
       icon: Globe,
-      color: "from-indigo-600 to-slate-800",
+      color: "from-indigo-600 to-violet-600",
       accentColor: "text-indigo-500 dark:text-indigo-400",
       bgGradient: "bg-indigo-500/10 dark:bg-indigo-500/20",
       borderColor: "border-indigo-500/20 hover:border-indigo-500/50",
@@ -71,13 +71,13 @@ export default function GoLobby() {
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-slate-900/10 dark:bg-slate-900/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-amber-900/10 dark:bg-amber-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-indigo-900/10 dark:bg-indigo-900/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-purple-900/10 dark:bg-purple-900/20 blur-[120px] pointer-events-none" />
 
       {/* Header Tools */}
       <div className="absolute top-6 left-6 z-20">
-        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
-          <ArrowLeft className="w-4 h-4" /> Back to Arcade
+        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-650 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
       </div>
 
@@ -85,7 +85,7 @@ export default function GoLobby() {
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-850 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
+          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-650 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -94,14 +94,14 @@ export default function GoLobby() {
       <div className="w-full max-w-5xl z-10 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-850 text-white shadow-xl shadow-slate-850/35 mb-2 animate-bounce">
-            <span className="font-extrabold text-3xl tracking-tighter">G</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/35 mb-2 animate-bounce">
+            <span className="font-extrabold text-3xl tracking-tighter">C</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-slate-700 dark:from-slate-400 via-amber-650 dark:via-amber-500 to-slate-800 dark:to-slate-400 bg-clip-text text-transparent">
-            Royal Go (Weiqi)
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 dark:from-indigo-400 via-purple-500 dark:via-purple-400 to-indigo-600 dark:to-indigo-400 bg-clip-text text-transparent">
+            Royal Chess
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-base max-w-md mx-auto">
-            Experience the ancient game of surrounding territory. Select your game mode to begin.
+            Select your preferred game mode to begin the battle of strategy and intellect.
           </p>
         </div>
 

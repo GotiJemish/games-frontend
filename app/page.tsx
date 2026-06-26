@@ -60,6 +60,42 @@ export default function GameLobby() {
       borderColor: "border-slate-500/20 hover:border-slate-500/50",
       shadow: "shadow-slate-500/10 hover:shadow-slate-500/25",
       badge: "Pure Strategy"
+    },
+    {
+      id: "chess",
+      name: "Royal Chess",
+      description: "Command your army, control the center, execute tactics, and checkmate the enemy king in the ultimate battle of wits.",
+      route: "/chess",
+      color: "from-indigo-500 to-violet-650",
+      accentColor: "text-indigo-500 dark:text-indigo-400",
+      bgGradient: "bg-indigo-500/10 dark:bg-indigo-500/20",
+      borderColor: "border-indigo-500/20 hover:border-indigo-500/50",
+      shadow: "shadow-indigo-500/10 hover:shadow-indigo-500/25",
+      badge: "Timeless Classic"
+    },
+    {
+      id: "tic-tac-toe",
+      name: "Tic-Tac-Toe",
+      description: "Get three marks in a row (X or O) to win this classic retro quick-fire arcade grid game.",
+      route: "/tic-tac-toe",
+      color: "from-fuchsia-550 to-cyan-500",
+      accentColor: "text-fuchsia-500 dark:text-fuchsia-400",
+      bgGradient: "bg-fuchsia-500/10 dark:bg-fuchsia-500/20",
+      borderColor: "border-fuchsia-500/20 hover:border-fuchsia-500/50",
+      shadow: "shadow-fuchsia-500/10 hover:shadow-fuchsia-500/25",
+      badge: "Quick Play"
+    },
+    {
+      id: "bingo",
+      name: "Royal Bingo",
+      description: "Cross out numbers randomly generated on a 5x5 grid, complete lines, and light up B-I-N-G-O to win.",
+      route: "/bingo",
+      color: "from-blue-600 to-purple-650",
+      accentColor: "text-blue-500 dark:text-blue-400",
+      bgGradient: "bg-blue-500/10 dark:bg-blue-500/20",
+      borderColor: "border-blue-500/20 hover:border-blue-500/50",
+      shadow: "shadow-blue-500/10 hover:shadow-blue-500/25",
+      badge: "Grid Battle"
     }
   ];
 
@@ -74,13 +110,13 @@ export default function GameLobby() {
         <button
           onClick={toggleTheme}
           title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
+          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-650 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
 
-      <div className="w-full max-w-6xl z-10 space-y-12">
+      <div className="w-full max-w-7xl z-10 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/35 mb-2 animate-pulse">
@@ -95,7 +131,7 @@ export default function GameLobby() {
         </div>
 
         {/* Game Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {games.map((game) => (
             <div
               key={game.id}
