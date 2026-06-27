@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import api from "@/lib/axios";
-import Link from "next/link";
-import { 
-  User, ArrowLeft, Play, Check, LogOut, Send, 
-  MessageSquare, AlertCircle, Sparkles, Sun, Moon, Award, Shield
+import { Dice } from "@/app/_components/dice";
+import {
+  User, ArrowLeft, Play, Check, LogOut, Send,
+  MessageSquare, AlertCircle, Sparkles, Award, Shield
 } from "lucide-react";
 
 // Track coordinate points around the Ludo board (0-51)
@@ -98,7 +98,6 @@ interface ChatMessage {
 }
 
 export default function LudoAIPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   // Setup state
   const [username, setUsername] = useState("");
@@ -124,25 +123,6 @@ export default function LudoAIPage() {
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
-
-  // Theme check
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = systemPrefersDark ? "dark" : "light";
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
-    }
-  }, []);
-
-  // Theme switch handler
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
-    }
-  };
 
   // WS Connect
   const connectWebSocket = (gId: string, uName: string) => {
@@ -345,64 +325,7 @@ export default function LudoAIPage() {
     return home;
   }, [game]);
 
-  const renderDiceDots = (val: number) => {
-    const dotClasses = "w-3 h-3 bg-zinc-950 dark:bg-white rounded-full shadow-sm animate-pulse";
-    switch (val) {
-      case 1:
-        return <div className="flex items-center justify-center w-full h-full"><div className={dotClasses} /></div>;
-      case 2:
-        return (
-          <div className="flex justify-between w-full h-full p-2 flex-col">
-            <div className="flex justify-start"><div className={dotClasses} /></div>
-            <div className="flex justify-end"><div className={dotClasses} /></div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="flex justify-between w-full h-full p-2 flex-col">
-            <div className="flex justify-start"><div className={dotClasses} /></div>
-            <div className="flex justify-center"><div className={dotClasses} /></div>
-            <div className="flex justify-end"><div className={dotClasses} /></div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="grid grid-cols-2 grid-rows-2 w-full h-full p-2 gap-2">
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-          </div>
-        );
-      case 5:
-        return (
-          <div className="grid grid-cols-3 grid-rows-3 w-full h-full p-1.5 justify-items-center items-center">
-            <div className={dotClasses} />
-            <div />
-            <div className={dotClasses} />
-            <div />
-            <div className={dotClasses} />
-            <div />
-            <div className={dotClasses} />
-            <div />
-            <div className={dotClasses} />
-          </div>
-        );
-      case 6:
-        return (
-          <div className="grid grid-cols-2 grid-rows-3 w-full h-full p-2 gap-x-2 gap-y-1 justify-items-center">
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-            <div className={dotClasses} />
-          </div>
-        );
-      default:
-        return <div className="text-zinc-500 dark:text-zinc-400 font-semibold text-sm">ROLL</div>;
-    }
-  };
+
 
   const Token = ({ 
     color: tokenColor, 
@@ -536,7 +459,7 @@ export default function LudoAIPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
+    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
       {/* Glow Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-red-900/10 dark:bg-red-900/20 blur-[120px] pointer-events-none z-0" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-blue-900/10 dark:bg-blue-900/20 blur-[120px] pointer-events-none z-0" />
@@ -761,16 +684,13 @@ export default function LudoAIPage() {
                   </div>
 
                   {game?.status === "playing" && (
-                    <button
-                      disabled={!isMyTurn || !!game?.has_rolled || isRolling}
+                    <Dice
+                      val={game?.last_roll || 0}
+                      isRolling={isRolling}
                       onClick={handleRollDice}
-                      className={`w-14 h-14 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl flex items-center justify-center select-none active:scale-95 transition-all
-                        ${isRolling ? "animate-spin cursor-not-allowed" : ""}
-                        ${isMyTurn && !game?.has_rolled ? "hover:scale-105 ring-4 ring-red-500/20 bg-white cursor-pointer" : "opacity-40 cursor-not-allowed"}
-                      `}
-                    >
-                      {renderDiceDots(game?.last_roll || 0)}
-                    </button>
+                      disabled={!isMyTurn || !!game?.has_rolled || isRolling}
+                      color={myColor || "RED"}
+                    />
                   )}
                 </div>
 

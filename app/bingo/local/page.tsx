@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { ArrowLeft, User, RotateCcw, Award, Sparkles, Sun, Moon, Play } from "lucide-react";
+import { useTheme } from "@/lib/use-theme";
+import { ArrowLeft, User, RotateCcw, Award, Sparkles, Play } from "lucide-react";
 
 export default function BingoLocal() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const { theme } = useTheme();
   const [p1Name, setP1Name] = useState("Player 1");
   const [p2Name, setP2Name] = useState("Player 2");
   const [isSetup, setIsSetup] = useState(true);
@@ -20,22 +20,7 @@ export default function BingoLocal() {
   const [lines, setLines] = useState({ BLUE: 0, RED: 0 });
   const [logs, setLogs] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = systemPrefersDark ? "dark" : "light";
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
-    }
-  }, []);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
-    }
-  };
 
   const winningCombos = [
     [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24], // Rows
@@ -159,27 +144,10 @@ export default function BingoLocal() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-blue-900/10 dark:bg-blue-900/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-emerald-900/10 dark:bg-emerald-900/20 blur-[120px] pointer-events-none" />
-
-      {/* Header Tools */}
-      <div className="absolute top-6 left-6 z-20">
-        <Link href="/bingo" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
-          <ArrowLeft className="w-4 h-4" /> Exit Mode
-        </Link>
-      </div>
-
-      <div className="absolute top-6 right-6 z-20">
-        <button
-          onClick={toggleTheme}
-          title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
-        >
-          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-      </div>
 
       <div className="w-full max-w-6xl z-10 flex flex-col items-center justify-center mt-12">
         {isSetup ? (

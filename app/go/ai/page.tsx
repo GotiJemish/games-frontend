@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
+import { useTheme } from "@/lib/use-theme";
 import { 
   User, ArrowLeft, Play, LogOut, Send, 
-  MessageSquare, AlertCircle, Sparkles, Sun, Moon, Award, Shield, Users
+  MessageSquare, AlertCircle, Sparkles, Award, Shield, Users
 } from "lucide-react";
 
 interface GamePlayer {
@@ -37,7 +38,7 @@ interface ChatMessage {
 }
 
 export default function GoAIPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const { theme } = useTheme();
   const [boardSize, setBoardSize] = useState<9 | 13 | 19>(9);
 
   // Form input states
@@ -64,23 +65,7 @@ export default function GoAIPage() {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  // Load theme
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = systemPrefersDark ? "dark" : "light";
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
-    }
-  }, []);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
-    }
-  };
 
   // WS Connect
   const connectWebSocket = (gId: string, uName: string) => {
@@ -235,21 +220,10 @@ export default function GoAIPage() {
   }, [activeBoardSize]);
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
+    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
       {/* Glow Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-slate-900/10 dark:bg-slate-900/20 blur-[120px] pointer-events-none z-0" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-amber-900/10 dark:bg-amber-900/20 blur-[120px] pointer-events-none z-0" />
-      
-      {/* Toggle Theme */}
-      <div className="absolute top-4 right-4 z-20">
-        <button 
-          onClick={toggleTheme} 
-          title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
-        >
-          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-      </div>
 
       {!isJoined ? (
         <div className="w-full max-w-md bg-white dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-xl dark:shadow-2xl relative z-10 transition-colors duration-300">

@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
+import { useTheme } from "@/lib/use-theme";
 import { 
-  User, ArrowLeft, Play, LogOut, Sparkles, Sun, Moon, Award, Shield, MessageSquare, Send
+  User, ArrowLeft, Play, LogOut, Sparkles, Award, Shield, MessageSquare, Send
 } from "lucide-react";
 
 interface GamePlayer {
@@ -32,7 +33,7 @@ interface ChatMessage {
 }
 
 export default function TicTacToeAI() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const { theme, setNavbarConfig } = useTheme();
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
 
   // Form input states
@@ -40,6 +41,22 @@ export default function TicTacToeAI() {
   const [color, setColor] = useState("X"); // X or O
   const [gameId, setGameId] = useState("");
   const [isJoined, setIsJoined] = useState(false);
+
+  useEffect(() => {
+    if (isJoined) {
+      setNavbarConfig({
+        backLabel: "Leave Game",
+        onBackClick: handleLeaveGame,
+        backHref: null,
+      });
+    } else {
+      setNavbarConfig({
+        backHref: "/tic-tac-toe",
+        backLabel: "Back to Tic-Tac-Toe Lobby",
+        onBackClick: null,
+      });
+    }
+  }, [isJoined, setNavbarConfig]);
 
   // Match states
   const [onlineGame, setOnlineGame] = useState<GameState | null>(null);
@@ -59,23 +76,7 @@ export default function TicTacToeAI() {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  // Load theme
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = systemPrefersDark ? "dark" : "light";
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
-    }
-  }, []);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
-    }
-  };
 
   // WS Connect
   const connectWebSocket = (gId: string, uName: string) => {
@@ -192,33 +193,10 @@ export default function TicTacToeAI() {
   const humanPlayer = onlineGame?.players.find(p => !p.username.startsWith("Computer (Bot)"));
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-indigo-900/10 dark:bg-indigo-900/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-fuchsia-900/10 dark:bg-fuchsia-900/20 blur-[120px] pointer-events-none" />
-
-      {/* Header Tools */}
-      <div className="absolute top-6 left-6 z-20">
-        {!isJoined ? (
-          <Link href="/tic-tac-toe" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all text-sm font-bold">
-            <ArrowLeft className="w-4 h-4" /> Back to Lobby
-          </Link>
-        ) : (
-          <button onClick={handleLeaveGame} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 cursor-pointer active:scale-95 transition-all text-sm font-bold">
-            <LogOut className="w-4 h-4" /> Leave Game
-          </button>
-        )}
-      </div>
-
-      <div className="absolute top-6 right-6 z-20">
-        <button
-          onClick={toggleTheme}
-          title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
-        >
-          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-      </div>
 
       {errorMsg && (
         <div className="fixed bottom-6 left-6 z-50 bg-red-500 text-white font-semibold py-3 px-6 rounded-2xl shadow-xl animate-bounce flex items-center gap-2">

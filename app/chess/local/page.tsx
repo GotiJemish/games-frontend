@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Chess } from "chess.js";
-import Link from "next/link";
-import { 
-  User, ArrowLeft, Play, LogOut, Sparkles, Sun, Moon, Award, Users
+import {
+  User, ArrowLeft, Play, LogOut, Sparkles, Award, Users
 } from "lucide-react";
 
 interface ChatMessage {
@@ -31,7 +30,6 @@ const PIECE_NAMES: Record<string, string> = {
 };
 
 export default function ChessLocalPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
   
   // Game Setup
   const [playerWhite, setPlayerWhite] = useState("");
@@ -59,24 +57,6 @@ export default function ChessLocalPage() {
   useEffect(() => {
     logBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logMessages]);
-
-  // Load theme
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = systemPrefersDark ? "dark" : "light";
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
-    }
-  };
 
   const handleStartGame = (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,21 +237,10 @@ export default function ChessLocalPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
+    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 md:p-8 transition-colors duration-300 relative overflow-x-hidden">
       {/* Glow Orbs */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-indigo-900/10 dark:bg-indigo-900/20 blur-[120px] pointer-events-none z-0" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-purple-900/10 dark:bg-purple-900/20 blur-[120px] pointer-events-none z-0" />
-      
-      {/* Toggle Theme */}
-      <div className="absolute top-4 right-4 z-20">
-        <button 
-          onClick={toggleTheme} 
-          title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`}
-          className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md rounded-2xl text-zinc-650 dark:text-zinc-400 hover:text-indigo-650 dark:hover:text-white cursor-pointer active:scale-95 transition-all"
-        >
-          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </button>
-      </div>
 
       {!isStarted ? (
         <div className="w-full max-w-md bg-white dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-xl dark:shadow-2xl relative z-10 transition-colors duration-300">
