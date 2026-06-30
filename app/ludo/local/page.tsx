@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useTheme } from "@/lib/use-theme";
 import { Dice } from "@/app/_components/dice";
-import {
-  User, ArrowLeft, Play, Check, LogOut, Sparkles, Monitor, Users
+import { 
+  Users, Coins, ArrowLeft, Monitor, LogOut, Check, Sparkles, Play, Star
 } from "lucide-react";
 
 // Track coordinate points around the Ludo board (0-51)
@@ -400,7 +400,6 @@ export default function LudoLocalPage() {
     isInteractive: boolean; 
     onClick?: () => void 
   }) => {
-    const themeInfo = COLOR_THEMES[tokenColor];
     return (
       <button
         onClick={(e) => {
@@ -409,12 +408,11 @@ export default function LudoLocalPage() {
         }}
         disabled={!isInteractive}
         title={`${tokenColor} Token ${tokenIdx + 1}`}
-        className={`w-6 h-6 rounded-full border border-white dark:border-zinc-900 flex items-center justify-center font-bold text-xs select-none transition-all duration-200 z-20 shadow-md
-          ${themeInfo.token}
-          ${isInteractive ? "ring-4 ring-indigo-500 dark:ring-white animate-pulse scale-110 cursor-pointer" : "cursor-default"}
+        className={`ludo-king-token ludo-king-token-${tokenColor.toLowerCase()}
+          ${isInteractive ? "ring-4 ring-indigo-500 animate-pulse scale-110 cursor-pointer" : "cursor-default"}
         `}
       >
-        {tokenIdx + 1}
+        <Star className="w-3.5 h-3.5 fill-current ludo-king-token-star" />
       </button>
     );
   };
@@ -423,48 +421,48 @@ export default function LudoLocalPage() {
     const key = `${r}_${c}`;
     const cellTokens = tokensByCell[key] || [];
 
-    let cellBg = "bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400";
+    let cellBg = "bg-white dark:bg-zinc-900 border border-zinc-250 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400";
     let isStar = false;
     let label = "";
 
     if (SAFE_TRACK_INDICES.has(TRACK_COORDINATES.findIndex(coord => coord[0] === r && coord[1] === c))) {
       isStar = true;
-      cellBg = "bg-slate-200 dark:bg-zinc-800 border border-slate-350 dark:border-zinc-700 text-amber-500 dark:text-amber-400";
+      cellBg = "bg-[#f5f5f5] dark:bg-zinc-850 border border-zinc-300 dark:border-zinc-700 text-zinc-405 dark:text-zinc-400";
     }
 
     if (r === 6 && c === 1) {
       cellBg = "bg-red-600 dark:bg-red-500 border border-red-700 dark:border-red-600 text-white font-extrabold";
       label = "➔";
     } else if (r === 7 && c >= 1 && c <= 5) {
-      cellBg = "bg-red-500/10 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400";
+      cellBg = "bg-red-500 border border-red-200 dark:border-red-500/30 text-white";
     }
     else if (r === 1 && c === 8) {
       cellBg = "bg-emerald-600 dark:bg-emerald-500 border border-emerald-700 dark:border-emerald-600 text-white font-extrabold";
-      label = "➔";
+      label = "↓";
     } else if (c === 7 && r >= 1 && r <= 5) {
-      cellBg = "bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400";
+      cellBg = "bg-emerald-500 border border-emerald-250 dark:border-emerald-500/30 text-white";
     }
     else if (r === 8 && c === 13) {
       cellBg = "bg-amber-500 dark:bg-amber-400 border border-amber-600 dark:border-amber-500 text-zinc-950 font-extrabold";
-      label = "➔";
+      label = "←";
     } else if (r === 7 && c >= 9 && c <= 13) {
-      cellBg = "bg-amber-500/10 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 text-amber-650 dark:text-amber-400";
+      cellBg = "bg-amber-500 border border-amber-250 dark:border-amber-500/30 text-zinc-950";
     }
     else if (r === 13 && c === 6) {
       cellBg = "bg-blue-600 dark:bg-blue-500 border border-blue-700 dark:border-blue-600 text-white font-extrabold";
-      label = "➔";
+      label = "↑";
     } else if (c === 7 && r >= 9 && r <= 13) {
-      cellBg = "bg-blue-500/10 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 text-blue-650 dark:text-blue-400";
+      cellBg = "bg-blue-500 border border-blue-250 dark:border-blue-500/30 text-white";
     }
 
     return (
       <div 
         key={key} 
         style={{ gridRowStart: r + 1, gridColumnStart: c + 1 }}
-        className={`w-full aspect-square flex items-center justify-center relative rounded-md select-none transition-all ${cellBg}`}
+        className={`w-full aspect-square flex items-center justify-center relative select-none transition-all ${cellBg}`}
       >
-        {isStar && !cellTokens.length && <Sparkles className="w-4 h-4 animate-pulse text-amber-500 dark:text-amber-400/60" />}
-        {label && !cellTokens.length && <span className="text-[10px] opacity-75">{label}</span>}
+        {isStar && !cellTokens.length && <Star className="w-5 h-5 text-zinc-400 dark:text-zinc-650" />}
+        {label && !cellTokens.length && <span className="text-sm font-black opacity-90">{label}</span>}
         
         {cellTokens.length > 0 && (
           <div className={`grid gap-0.5 justify-center items-center ${cellTokens.length > 1 ? "grid-cols-2 p-0.5" : "grid-cols-1"}`}>
@@ -679,10 +677,10 @@ export default function LudoLocalPage() {
                   style={{ gridColumn: "7 / span 3", gridRow: "7 / span 3" }}
                   className="relative w-full h-full border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-50 dark:bg-zinc-900 rounded-xl"
                 >
-                  <div className="absolute inset-0 bg-red-600/15 dark:bg-red-600/35 border-r border-red-500/10" style={{ clipPath: "polygon(0% 0%, 50% 50%, 0% 100%)" }} />
-                  <div className="absolute inset-0 bg-emerald-600/15 dark:bg-emerald-600/35 border-b border-emerald-500/10" style={{ clipPath: "polygon(0% 0%, 100% 0%, 50% 50%)" }} />
-                  <div className="absolute inset-0 bg-amber-500/15 dark:bg-amber-500/35 border-l border-amber-500/10" style={{ clipPath: "polygon(100% 0%, 100% 100%, 50% 50%)" }} />
-                  <div className="absolute inset-0 bg-blue-600/15 dark:bg-blue-600/35 border-t border-blue-500/10" style={{ clipPath: "polygon(0% 100%, 100% 100%, 50% 50%)" }} />
+                  <div className="absolute inset-0 bg-red-600 dark:bg-red-500 border-r border-red-500/10" style={{ clipPath: "polygon(0% 0%, 50% 50%, 0% 100%)" }} />
+                  <div className="absolute inset-0 bg-emerald-600 dark:bg-emerald-500 border-b border-emerald-500/10" style={{ clipPath: "polygon(0% 0%, 100% 0%, 50% 50%)" }} />
+                  <div className="absolute inset-0 bg-amber-500 dark:bg-amber-400 border-l border-amber-500/10" style={{ clipPath: "polygon(100% 0%, 100% 100%, 50% 50%)" }} />
+                  <div className="absolute inset-0 bg-blue-600 dark:bg-blue-500 border-t border-blue-500/10" style={{ clipPath: "polygon(0% 100%, 100% 100%, 50% 50%)" }} />
 
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-full z-15 flex items-center justify-center">
                     <Check className="w-2.5 h-2.5 text-zinc-400 dark:text-zinc-500" />

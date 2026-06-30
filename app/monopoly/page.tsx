@@ -2,49 +2,35 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Monitor, Globe, Shield, AlertCircle, ArrowLeft } from "lucide-react";
+import { Monitor, Globe, Sparkles, Building2, AlertCircle, ArrowLeft } from "lucide-react";
 import api from "@/lib/axios";
 import { Button } from "../_components/button";
 import { Card } from "../_components/card";
 import { GameGate } from "../_components/game-gate";
 
-export default function LudoLobby() {
-
+export default function MonopolyLobby() {
   const modes = [
-    {
-      id: "ai",
-      name: "Play vs. Computer",
-      description: "Match your wits against 1-3 computer bots. Choose colors and select custom rule variations before rolling.",
-      route: "/ludo/ai",
-      icon: Shield,
-      color: "from-amber-500 to-orange-550",
-      accentColor: "text-amber-550 dark:text-amber-400",
-      bgGradient: "bg-amber-500/10 dark:bg-amber-500/20",
-      borderColor: "border-amber-500/20 hover:border-amber-500/50",
-      shadow: "shadow-amber-500/10 hover:shadow-amber-500/25",
-      badge: "VS Computer"
-    },
     {
       id: "local",
       name: "Pass & Play",
-      description: "Play offline on a single device. Features turn-based rolling, active coin selections, and home tracks.",
-      route: "/ludo/local",
+      description: "Play Monopoly offline on a single device. Choose from 2, 3, or 4 players with custom name entries.",
+      route: "/monopoly/local",
       icon: Monitor,
-      color: "from-red-500 to-rose-600",
-      accentColor: "text-red-550 dark:text-red-400",
-      bgGradient: "bg-red-500/10 dark:bg-red-550/20",
-      borderColor: "border-red-500/20 hover:border-red-500/50",
-      shadow: "shadow-red-500/10 hover:shadow-red-500/25",
+      color: "from-emerald-500 to-teal-650",
+      accentColor: "text-emerald-600 dark:text-emerald-450",
+      bgGradient: "bg-emerald-550/10 dark:bg-emerald-550/20",
+      borderColor: "border-emerald-500/20 hover:border-emerald-500/50",
+      shadow: "shadow-emerald-500/10 hover:shadow-emerald-500/25",
       badge: "Local 2-4P"
     },
     {
       id: "online",
       name: "Online Multiplayer",
-      description: "Create or join online rooms. Roll dice and capture opponent coins in real-time over active socket lines.",
-      route: "/ludo/online",
+      description: "Host or join a Monopoly lobby. Play in real-time using WebSockets with friends across different devices.",
+      route: "/monopoly/online",
       icon: Globe,
-      color: "from-blue-500 to-indigo-650",
-      accentColor: "text-blue-500 dark:text-blue-400",
+      color: "from-blue-600 to-indigo-650",
+      accentColor: "text-blue-500 dark:text-blue-455",
       bgGradient: "bg-blue-500/10 dark:bg-blue-500/20",
       borderColor: "border-blue-500/20 hover:border-blue-500/50",
       shadow: "shadow-blue-500/10 hover:shadow-blue-500/25",
@@ -56,9 +42,9 @@ export default function LudoLobby() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/admin/configs/ludo")
+    api.get("/admin/configs/monopoly")
       .then(res => setConfig(res.data))
-      .catch(err => console.error("Error loading ludo config:", err))
+      .catch(err => console.error("Error loading monopoly config:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -84,27 +70,27 @@ export default function LudoLobby() {
         </div>
 
         {/* Background Orbs */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-red-900/10 dark:bg-red-900/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-blue-900/10 dark:bg-blue-900/20 blur-[120px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-amber-900/10 dark:bg-amber-900/20 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-red-900/10 dark:bg-red-900/20 blur-[120px] pointer-events-none" />
 
-        <div className="w-full max-w-5xl z-10 space-y-12">
+        <div className="w-full max-w-4xl z-10 space-y-12">
           {/* Header */}
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-600 text-white shadow-xl shadow-red-650/35 mb-2 animate-bounce">
-              <span className="font-extrabold text-3xl tracking-tighter">L</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500 text-white shadow-xl shadow-amber-550/35 mb-2 animate-bounce">
+              <Building2 className="w-9 h-9" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-red-550 dark:from-red-400 via-amber-500 dark:via-amber-400 to-blue-500 dark:to-blue-400 bg-clip-text text-transparent">
-              Royal Ludo
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-amber-555 dark:from-amber-400 via-orange-500 dark:via-orange-400 to-red-500 dark:to-red-455 bg-clip-text text-transparent">
+              Monopoly Royale
             </h1>
             <p className="text-zinc-500 dark:text-zinc-400 text-base max-w-md mx-auto">
-              Roll the dice, race your tokens, and knock out your opponents in this classic arcade board game.
+              Roll the dice, acquire valuable properties, build houses and hotels, and bankrupt your friends in the ultimate board game experience.
             </p>
           </div>
 
           {/* Game Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-2xl mx-auto">
             {visibleModes.length === 0 ? (
-              <div className="md:col-span-3 text-center py-12 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8">
+              <div className="md:col-span-2 text-center py-12 bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 w-full">
                 <AlertCircle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">No Modes Available</h3>
                 <p className="text-zinc-500 dark:text-zinc-400 text-xs">All play modes are currently offline. Please check back later.</p>

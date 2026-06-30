@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Board Arcade - Next.js Frontend
 
-## Getting Started
+This is the Next.js frontend application for the Web Board Arcade platform. It incorporates premium dark-theme elements, glassmorphic card grids, 3D dice physics matching Ludo King, and a shared reusable component design system.
+
+## 🚀 Getting Started
 
 First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎛️ Shared Component Library
 
-## Learn More
+We have created five highly flexible, reusable React components in `app/_components/`. Use them to ensure styling consistency and avoid code duplication:
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Button
+Wraps standard HTML button properties with custom styling, icon injections, and loading spinner controls.
+```tsx
+import { Button } from "./_components/button";
+import { Play } from "lucide-react";
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<Button
+  variant="primary" // primary, secondary, outline, danger, ghost
+  size="md" // sm, md, lg
+  leftIcon={<Play />}
+  isLoading={loading}
+>
+  Start Game
+</Button>
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Input
+Input element with top uppercase label, left/right inset icons, and animated validation error text.
+```tsx
+import { Input } from "./_components/input";
+import { Key } from "lucide-react";
 
-## Deploy on Vercel
+<Input
+  label="Admin Passcode"
+  type="password"
+  value={passcode}
+  onChange={e => setPasscode(e.target.value)}
+  leftIcon={<Key />}
+  error={authError}
+/>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3. Table
+Generic type-safe table rendering component with responsive horizontal scrolling container wrappers.
+```tsx
+import { Table } from "./_components/table";
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<Table
+  headers={["Name", "Score", "Rank"]}
+  data={playersList}
+  renderRow={(player, index) => (
+    <tr key={player.id}>
+      <td className="px-5 py-4 font-bold text-white">{player.name}</td>
+      <td className="px-5 py-4 text-zinc-350">{player.score}</td>
+      <td className="px-5 py-4 text-indigo-400">#{index + 1}</td>
+    </tr>
+  )}
+/>
+```
+
+### 4. Card
+Shared card box used on both the main dashboard and game lobby pages. Incorporates sparkles badges, description paragraphs, icons, and nested custom action buttons.
+```tsx
+import { Card } from "./_components/card";
+import { Shield } from "lucide-react";
+
+<Card
+  name="Classic Ludo"
+  description="Roll dice, capture opponent tokens, and race home."
+  route="/ludo"
+  color="from-rose-500 to-orange-500"
+  accentColor="text-rose-500"
+  bgGradient="bg-rose-500/10"
+  borderColor="border-rose-500/20"
+  shadow="shadow-rose-500/10"
+  badge="Popular"
+  icon={Shield}
+  buttonText="Play Game"
+/>
+```
+
+### 5. GameGate
+Lobby gatekeeper. Standardizes the loading logic and displays a clean lock alert screen if a game has been set to private by the administrator.
+```tsx
+import { GameGate } from "./_components/game-gate";
+
+return (
+  <GameGate config={config} loading={loading}>
+    <div>
+      {/* Rest of the lobby page goes here */}
+    </div>
+  </GameGate>
+);
+```

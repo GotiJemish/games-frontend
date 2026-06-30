@@ -68,9 +68,9 @@ export function Dice({ val, isRolling, onClick, disabled, color = "RED" }: DiceP
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`w-14 h-14 bg-card border-2 shadow-none transition-all duration-200 outline-none flex items-center justify-center p-2.5 rounded-none active:scale-95
-        ${isRolling ? "animate-dice-roll cursor-not-allowed" : ""}
-        ${!disabled ? `cursor-pointer ring-4 ${activeTheme.ring} ${activeTheme.border} hover:scale-105` : "border-zinc-200 dark:border-zinc-800 opacity-60 cursor-not-allowed"}
+      className={`ludo-king-dice
+        ${isRolling ? "animate-ludo-king-roll" : ""}
+        ${!disabled ? "hover:scale-105 cursor-pointer" : "opacity-60 cursor-not-allowed"}
       `}
     >
       <div className="grid grid-cols-3 grid-rows-3 w-full h-full gap-1 justify-items-center items-center">
@@ -81,9 +81,7 @@ export function Dice({ val, isRolling, onClick, disabled, color = "RED" }: DiceP
             return (
               <div key={i} className="w-2.5 h-2.5 flex items-center justify-center">
                 {hasDot && (
-                  <div
-                    className={`w-2 h-2 rounded-full transition-colors duration-200 ${activeTheme.bg}`}
-                  />
+                  <div className="ludo-king-pip" />
                 )}
               </div>
             );
