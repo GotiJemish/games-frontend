@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Gamepad2, Trophy, Shield } from "lucide-react";
-import api from "@/lib/axios";
+import { useGameConfig } from "@/lib/use-game-config";
 import { Button } from "./_components/button";
 import { Card } from "./_components/card";
 
@@ -108,21 +108,15 @@ export default function GameLobby() {
     }
   ];
 
-  const [configs, setConfigs] = useState<Record<string, { is_public: boolean }>>({});
+  const { config: allConfigs } = useGameConfig();
 
-  useEffect(() => {
-    api.get("/admin/configs")
-      .then(res => {
-        const configMap: Record<string, { is_public: boolean }> = {};
-        res.data.forEach((cfg: any) => {
-          configMap[cfg.id] = { is_public: cfg.is_public };
-        });
-        setConfigs(configMap);
-      })
-      .catch(err => {
-        console.error("Failed to load game configurations:", err);
-      });
-  }, []);
+  // Build config map from the array response
+  const configs: Record<string, { is_public: boolean }> = {};
+  if (Array.isArray(allConfigs)) {
+    allConfigs.forEach((cfg: any) => {
+      configs[cfg.id] = { is_public: cfg.is_public };
+    });
+  }
 
   const visibleGames = games.filter(game => {
     const config = configs[game.id];

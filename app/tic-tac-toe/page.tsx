@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Monitor, Globe, Shield, AlertCircle, ArrowLeft } from "lucide-react";
-import api from "@/lib/axios";
+import { useGameConfig } from "@/lib/use-game-config";
 import { Button } from "../_components/button";
 import { Card } from "../_components/card";
 import { GameGate } from "../_components/game-gate";
@@ -52,15 +52,7 @@ export default function TicTacToeLobby() {
     }
   ];
 
-  const [config, setConfig] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get("/admin/configs/tic-tac-toe")
-      .then(res => setConfig(res.data))
-      .catch(err => console.error("Error loading tic-tac-toe config:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  const { config, loading } = useGameConfig("tic-tac-toe");
 
   const visibleModes = modes.filter(mode => {
     if (!config) return true;

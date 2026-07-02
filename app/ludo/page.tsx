@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { Monitor, Globe, Shield, AlertCircle, ArrowLeft } from "lucide-react";
-import api from "@/lib/axios";
+import { Monitor, Globe, Shield, AlertCircle, ArrowLeft, Settings } from "lucide-react";
+import { useGameConfig } from "@/lib/use-game-config";
 import { Button } from "../_components/button";
 import { Card } from "../_components/card";
 import { GameGate } from "../_components/game-gate";
@@ -48,19 +48,23 @@ export default function LudoLobby() {
       bgGradient: "bg-blue-500/10 dark:bg-blue-500/20",
       borderColor: "border-blue-500/20 hover:border-blue-500/50",
       shadow: "shadow-blue-500/10 hover:shadow-blue-500/25",
-      badge: "Real-time"
+    },
+    {
+      id: "custom",
+      name: "Custom Game",
+      description: "Play with up to 20 players and 4-10 pawns on a dynamically generated scalable Ludo board.",
+      route: "/ludo/custom",
+      icon: Settings,
+      color: "from-emerald-500 to-teal-600",
+      accentColor: "text-emerald-550 dark:text-emerald-400",
+      bgGradient: "bg-emerald-500/10 dark:bg-emerald-500/20",
+      borderColor: "border-emerald-500/20 hover:border-emerald-500/50",
+      shadow: "shadow-emerald-500/10 hover:shadow-emerald-500/25",
+      badge: "Up to 20P"
     }
   ];
 
-  const [config, setConfig] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get("/admin/configs/ludo")
-      .then(res => setConfig(res.data))
-      .catch(err => console.error("Error loading ludo config:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  const { config, loading } = useGameConfig("ludo");
 
   const visibleModes = modes.filter(mode => {
     if (!config) return true;

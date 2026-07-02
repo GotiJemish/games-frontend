@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useTheme } from "@/lib/use-theme";
 import { Dice } from "@/app/_components/dice";
 import { 
-  Users, Coins, ArrowLeft, Monitor, LogOut, Check, Sparkles, Play, Star
+  Users, Coins, ArrowLeft, Monitor, LogOut, Check, Sparkles, Play, Star, Settings
 } from "lucide-react";
+import { DynamicLudoBoard } from "../_components/DynamicLudoBoard";
+import PlayerToken from "@/app/_components/PlayerToken";
 
 // Track coordinate points around the Ludo board (0-51)
 const TRACK_COORDINATES: [number, number][] = [
@@ -164,17 +166,57 @@ const executeLocalMove = (
   return { boardState: nextBoardState, captured, message };
 };
 
+// Helper to convert strings like 'COLOR_5' into vibrant HSL hexes
+const getCSSColor = (c: string) => {
+    if (c === "RED") return "#ef4444";
+    if (c === "GREEN") return "#10b981";
+    if (c === "YELLOW") return "#f59e0b";
+    if (c === "BLUE") return "#3b82f6";
+    if (c.startsWith("COLOR_")) {
+        const num = parseInt(c.replace("COLOR_", ""), 10);
+        const hue = (num * 137.5) % 360;
+        const l = 50 / 100;
+        const a = 70 * Math.min(l, 1 - l) / 100;
+        const f = (n: number) => {
+          const k = (n + hue / 30) % 12;
+          const cl = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+          return Math.round(255 * cl).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
+    }
+    return c;
+};
+
 export default function LudoLocalPage() {
   const [isStarted, setIsStarted] = useState(false);
 
   // Setup state
+  const [isCustomMode, setIsCustomMode] = useState(false);
   const [localPlayerCount, setLocalPlayerCount] = useState<2 | 3 | 4>(2);
+  const [customPlayerCount, setCustomPlayerCount] = useState<number>(5);
+  const [customPawnCount, setCustomPawnCount] = useState<number>(4);
   const [localPlayerNames, setLocalPlayerNames] = useState<Record<string, string>>({
     RED: "Player 1",
     GREEN: "Player 2",
     YELLOW: "Player 3",
     BLUE: "Player 4"
   });
+  
+  const [pawnTheme, setPawnTheme] = useState("CuteBoyCookie");
+
+  // Generate dynamic colors for >4 players
+  const allActiveColors = useMemo(() => {
+    if (!isCustomMode) {
+      if (localPlayerCount === 2) return ["RED", "YELLOW"];
+      if (localPlayerCount === 3) return ["RED", "GREEN", "YELLOW"];
+      return ["RED", "GREEN", "YELLOW", "BLUE"];
+    }
+    const colors = ["RED", "GREEN", "YELLOW", "BLUE"];
+    for (let i = 4; i < customPlayerCount; i++) {
+      colors.push(`COLOR_${i + 1}`);
+    }
+    return colors;
+  }, [isCustomMode, localPlayerCount, customPlayerCount]);
 
   // Game state
   const [localGame, setLocalGame] = useState<GameState | null>(null);
@@ -191,32 +233,30 @@ export default function LudoLocalPage() {
   const handleStartLocalGame = (e: React.FormEvent) => {
     e.preventDefault();
     
-    let colors: string[] = [];
-    if (localPlayerCount === 2) colors = ["RED", "YELLOW"];
-    else if (localPlayerCount === 3) colors = ["RED", "GREEN", "YELLOW"];
-    else colors = ["RED", "GREEN", "YELLOW", "BLUE"];
+    const colors = allActiveColors;
+    const numPawns = isCustomMode ? customPawnCount : 4;
 
     const board: Record<string, number[]> = {};
     colors.forEach(col => {
-      board[col] = [-1, -1, -1, -1];
+      board[col] = Array(numPawns).fill(-1);
     });
 
-    const playersList = colors.map((col) => ({
-      username: localPlayerNames[col] || `${col} Player`,
-      color: col
+    const players: GamePlayer[] = colors.map((col, idx) => ({
+      color: col,
+      username: localPlayerNames[col] || `Player ${idx + 1}`
     }));
 
     setLocalGame({
-      id: "LOCAL",
+      id: "local_game",
       status: "playing",
       current_turn: "RED",
       last_roll: null,
       has_rolled: false,
       winner: null,
       board_state: board,
-      players: playersList
+      players
     });
-    setLocalLogs([{ type: "system", message: "Local Pass & Play Match Started!" }]);
+    setLocalLogs([{ type: "system", message: "Game started." }]);
     setIsStarted(true);
   };
 
@@ -387,8 +427,6 @@ export default function LudoLocalPage() {
     return home;
   }, [game]);
 
-
-
   const Token = ({ 
     color: tokenColor, 
     tokenIdx, 
@@ -408,11 +446,11 @@ export default function LudoLocalPage() {
         }}
         disabled={!isInteractive}
         title={`${tokenColor} Token ${tokenIdx + 1}`}
-        className={`ludo-king-token ludo-king-token-${tokenColor.toLowerCase()}
-          ${isInteractive ? "ring-4 ring-indigo-500 animate-pulse scale-110 cursor-pointer" : "cursor-default"}
+        className={`relative flex items-center justify-center transition-transform w-8 h-8 md:w-10 md:h-10
+          ${isInteractive ? "scale-110 cursor-pointer animate-pulse z-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "cursor-default drop-shadow-md z-0"}
         `}
       >
-        <Star className="w-3.5 h-3.5 fill-current ludo-king-token-star" />
+        <PlayerToken theme={pawnTheme} color={getCSSColor(tokenColor)} size="100%" />
       </button>
     );
   };
@@ -541,80 +579,87 @@ export default function LudoLocalPage() {
           </div>
 
           <form onSubmit={handleStartLocalGame} className="space-y-6">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-550 dark:text-zinc-400 mb-2">Total Players</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[2, 3, 4].map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => setLocalPlayerCount(num as 2 | 3 | 4)}
-                    className={`py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer
-                      ${localPlayerCount === num 
-                        ? "bg-emerald-605 text-white border-transparent scale-105 shadow-md" 
-                        : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350"
-                      }
-                    `}
-                  >
-                    {num} Players
-                  </button>
-                ))}
-              </div>
+            
+            {/* Mode Selection */}
+            <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setIsCustomMode(false)}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isCustomMode ? "bg-white dark:bg-zinc-800 shadow text-emerald-600 dark:text-emerald-400" : "text-zinc-500 hover:text-zinc-700"}`}
+              >
+                Standard Mode
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCustomMode(true)}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isCustomMode ? "bg-white dark:bg-zinc-800 shadow text-emerald-600 dark:text-emerald-400" : "text-zinc-500 hover:text-zinc-700"}`}
+              >
+                Custom Mode
+              </button>
             </div>
+
+            {!isCustomMode ? (
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-550 dark:text-zinc-400 mb-2">Total Players (Standard)</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[2, 3, 4].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setLocalPlayerCount(num as 2 | 3 | 4)}
+                      className={`py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer
+                        ${localPlayerCount === num 
+                          ? "bg-emerald-605 text-white border-transparent scale-105 shadow-md" 
+                          : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-350"
+                        }
+                      `}
+                    >
+                      {num} Players
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-550 dark:text-zinc-400 mb-2">Total Players: {customPlayerCount}</label>
+                  <input 
+                    type="range" min="2" max="20" 
+                    value={customPlayerCount}
+                    onChange={(e) => setCustomPlayerCount(Number(e.target.value))}
+                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer dark:bg-zinc-700 accent-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-550 dark:text-zinc-400 mb-2">Total Pawns: {customPawnCount}</label>
+                  <input 
+                    type="range" min="4" max="10" 
+                    value={customPawnCount}
+                    onChange={(e) => setCustomPawnCount(Number(e.target.value))}
+                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer dark:bg-zinc-700 accent-emerald-500"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-550 dark:text-zinc-400">Player Names</label>
               
-              <div className="space-y-2">
-                <div>
-                  <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Player 1 (RED)</span>
-                  <input
-                    type="text"
-                    required
-                    value={localPlayerNames.RED}
-                    onChange={(e) => setLocalPlayerNames(prev => ({ ...prev, RED: e.target.value }))}
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                  />
-                </div>
-
-                {localPlayerCount >= 3 ? (
-                  <div>
-                    <span className="text-[10px] font-bold text-emerald-605 dark:text-emerald-500 uppercase tracking-widest">Player 2 (GREEN)</span>
+              <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                {allActiveColors.map((col, i) => (
+                  <div key={col}>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
+                      Player {i+1} {i < 4 ? `(${col})` : ""}
+                    </span>
                     <input
                       type="text"
                       required
-                      value={localPlayerNames.GREEN}
-                      onChange={(e) => setLocalPlayerNames(prev => ({ ...prev, GREEN: e.target.value }))}
+                      value={localPlayerNames[col] !== undefined ? localPlayerNames[col] : `Player ${i+1}`}
+                      onChange={(e) => setLocalPlayerNames(prev => ({ ...prev, [col]: e.target.value }))}
                       className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
                     />
                   </div>
-                ) : null}
-
-                <div>
-                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
-                    {localPlayerCount === 2 ? "Player 2" : "Player 3"} (YELLOW)
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={localPlayerNames.YELLOW}
-                    onChange={(e) => setLocalPlayerNames(prev => ({ ...prev, YELLOW: e.target.value }))}
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                  />
-                </div>
-
-                {localPlayerCount === 4 ? (
-                  <div>
-                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Player 4 (BLUE)</span>
-                    <input
-                      type="text"
-                      required
-                      value={localPlayerNames.BLUE}
-                      onChange={(e) => setLocalPlayerNames(prev => ({ ...prev, BLUE: e.target.value }))}
-                      className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                    />
-                  </div>
-                ) : null}
+                ))}
               </div>
             </div>
 
@@ -640,76 +685,88 @@ export default function LudoLocalPage() {
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
           {/* Main Board Area */}
           <div className="lg:col-span-8 flex items-center justify-center">
-            <div className="w-full max-w-[620px] aspect-square bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 md:p-6 shadow-xl dark:shadow-2xl relative transition-all">
-              <div 
-                className="grid w-full h-full gap-0.5 md:gap-1"
-                style={{ 
-                  gridTemplateColumns: "repeat(15, minmax(0, 1fr))", 
-                  gridTemplateRows: "repeat(15, minmax(0, 1fr))" 
-                }}
-              >
-                {/* Yards */}
-                {renderYard("RED", 1, 1)}
-                {renderYard("GREEN", 10, 1)}
-                {renderYard("YELLOW", 10, 10)}
-                {renderYard("BLUE", 1, 10)}
-
-                {/* Path mapping */}
-                {/* Top path */}
-                {Array.from({ length: 6 }).flatMap((_, r) => 
-                  Array.from({ length: 3 }).map((__, cIndex) => renderPathCell(r, cIndex + 6))
-                )}
-                {/* Right path */}
-                {Array.from({ length: 3 }).flatMap((_, rIndex) => 
-                  Array.from({ length: 6 }).map((__, cIndex) => renderPathCell(rIndex + 6, cIndex + 9))
-                )}
-                {/* Bottom path */}
-                {Array.from({ length: 6 }).flatMap((_, rIndex) => 
-                  Array.from({ length: 3 }).map((__, cIndex) => renderPathCell(rIndex + 9, cIndex + 6))
-                )}
-                {/* Left path */}
-                {Array.from({ length: 3 }).flatMap((_, rIndex) => 
-                  Array.from({ length: 6 }).map((__, cIndex) => renderPathCell(rIndex + 6, cIndex))
-                )}
-
-                {/* Center Home Triangle */}
+            {isCustomMode ? (
+              <DynamicLudoBoard 
+                numPlayers={game?.players.length || customPlayerCount}
+                numPawns={customPawnCount}
+                activeColors={game?.players.map(p => p.color) || []}
+                boardState={game?.board_state || {}}
+                onTokenClick={(color, idx) => handleMoveToken(idx)}
+                currentTurn={game?.current_turn || null}
+                pawnTheme={pawnTheme}
+              />
+            ) : (
+              <div className="w-full max-w-[620px] aspect-square bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 md:p-6 shadow-xl dark:shadow-2xl relative transition-all">
                 <div 
-                  style={{ gridColumn: "7 / span 3", gridRow: "7 / span 3" }}
-                  className="relative w-full h-full border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-50 dark:bg-zinc-900 rounded-xl"
+                  className="grid w-full h-full gap-0.5 md:gap-1"
+                  style={{ 
+                    gridTemplateColumns: "repeat(15, minmax(0, 1fr))", 
+                    gridTemplateRows: "repeat(15, minmax(0, 1fr))" 
+                  }}
                 >
-                  <div className="absolute inset-0 bg-red-600 dark:bg-red-500 border-r border-red-500/10" style={{ clipPath: "polygon(0% 0%, 50% 50%, 0% 100%)" }} />
-                  <div className="absolute inset-0 bg-emerald-600 dark:bg-emerald-500 border-b border-emerald-500/10" style={{ clipPath: "polygon(0% 0%, 100% 0%, 50% 50%)" }} />
-                  <div className="absolute inset-0 bg-amber-500 dark:bg-amber-400 border-l border-amber-500/10" style={{ clipPath: "polygon(100% 0%, 100% 100%, 50% 50%)" }} />
-                  <div className="absolute inset-0 bg-blue-600 dark:bg-blue-500 border-t border-blue-500/10" style={{ clipPath: "polygon(0% 100%, 100% 100%, 50% 50%)" }} />
+                  {/* Yards */}
+                  {renderYard("RED", 1, 1)}
+                  {renderYard("GREEN", 10, 1)}
+                  {renderYard("YELLOW", 10, 10)}
+                  {renderYard("BLUE", 1, 10)}
 
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-full z-15 flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 text-zinc-400 dark:text-zinc-500" />
-                  </div>
+                  {/* Path mapping */}
+                  {/* Top path */}
+                  {Array.from({ length: 6 }).flatMap((_, r) => 
+                    Array.from({ length: 3 }).map((__, cIndex) => renderPathCell(r, cIndex + 6))
+                  )}
+                  {/* Right path */}
+                  {Array.from({ length: 3 }).flatMap((_, rIndex) => 
+                    Array.from({ length: 6 }).map((__, cIndex) => renderPathCell(rIndex + 6, cIndex + 9))
+                  )}
+                  {/* Bottom path */}
+                  {Array.from({ length: 6 }).flatMap((_, rIndex) => 
+                    Array.from({ length: 3 }).map((__, cIndex) => renderPathCell(rIndex + 9, cIndex + 6))
+                  )}
+                  {/* Left path */}
+                  {Array.from({ length: 3 }).flatMap((_, rIndex) => 
+                    Array.from({ length: 6 }).map((__, cIndex) => renderPathCell(rIndex + 6, cIndex))
+                  )}
 
-                  {/* Finished Tokens */}
-                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-wrap gap-1 max-w-[32px] justify-center z-10">
+                  {/* Center Home Triangle */}
+                  <div 
+                    style={{ gridColumn: "7 / span 3", gridRow: "7 / span 3" }}
+                    className="relative w-full h-full border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-zinc-50 dark:bg-zinc-900 rounded-xl"
+                  >
+                    <div className="absolute inset-0 bg-red-600 dark:bg-red-500 border-r border-red-500/10" style={{ clipPath: "polygon(0% 0%, 50% 50%, 0% 100%)" }} />
+                    <div className="absolute inset-0 bg-emerald-600 dark:bg-emerald-500 border-b border-emerald-500/10" style={{ clipPath: "polygon(0% 0%, 100% 0%, 50% 50%)" }} />
+                    <div className="absolute inset-0 bg-amber-500 dark:bg-amber-400 border-l border-amber-500/10" style={{ clipPath: "polygon(100% 0%, 100% 100%, 50% 50%)" }} />
+                    <div className="absolute inset-0 bg-blue-600 dark:bg-blue-500 border-t border-blue-500/10" style={{ clipPath: "polygon(0% 100%, 100% 100%, 50% 50%)" }} />
+
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-full z-15 flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-zinc-400 dark:text-zinc-500" />
+                    </div>
+
+                    {/* Finished Tokens */}
+                    <div className="absolute left-2.5 top-1/2 -translate-y-1/2 flex flex-wrap gap-1 max-w-[32px] justify-center z-10">
                     {tokensAtHome.RED.map((t) => (
-                      <Token key={t.tokenIdx} color="RED" tokenIdx={t.tokenIdx} isInteractive={false} />
+                      <PlayerToken key={t.tokenIdx} theme={pawnTheme} color={getCSSColor("RED")} size="100%" />
                     ))}
                   </div>
                   <div className="absolute top-2.5 left-1/2 -translate-x-1/2 flex flex-wrap gap-1 max-h-[32px] justify-center z-10">
                     {tokensAtHome.GREEN.map((t) => (
-                      <Token key={t.tokenIdx} color="GREEN" tokenIdx={t.tokenIdx} isInteractive={false} />
+                      <PlayerToken key={t.tokenIdx} theme={pawnTheme} color={getCSSColor("GREEN")} size="100%" />
                     ))}
                   </div>
                   <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-wrap gap-1 max-w-[32px] justify-center z-10">
                     {tokensAtHome.YELLOW.map((t) => (
-                      <Token key={t.tokenIdx} color="YELLOW" tokenIdx={t.tokenIdx} isInteractive={false} />
+                      <PlayerToken key={t.tokenIdx} theme={pawnTheme} color={getCSSColor("YELLOW")} size="100%" />
                     ))}
                   </div>
                   <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex flex-wrap gap-1 max-h-[32px] justify-center z-10">
                     {tokensAtHome.BLUE.map((t) => (
-                      <Token key={t.tokenIdx} color="BLUE" tokenIdx={t.tokenIdx} isInteractive={false} />
+                      <PlayerToken key={t.tokenIdx} theme={pawnTheme} color={getCSSColor("BLUE")} size="100%" />
                     ))}
                   </div>
                 </div>
               </div>
             </div>
+            )}
           </div>
 
           {/* Right Panel */}
@@ -744,19 +801,25 @@ export default function LudoLocalPage() {
                         key={p.username} 
                         className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all duration-200
                           ${isTurn 
-                            ? `${COLOR_THEMES[p.color].border} bg-${p.color.toLowerCase()}-500/5 ring-1 ring-${p.color.toLowerCase()}-500/10` 
+                            ? (COLOR_THEMES[p.color] ? `${COLOR_THEMES[p.color].border} bg-${p.color.toLowerCase()}-500/5 ring-1 ring-${p.color.toLowerCase()}-500/10` : "border-blue-500 bg-blue-500/5 ring-1 ring-blue-500/10")
                             : "bg-zinc-50/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-850"
                           }
                         `}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`w-3 h-3 rounded-full ${COLOR_THEMES[p.color].bg} shadow-sm`} />
+                          <span 
+                            className={`w-3 h-3 rounded-full shadow-sm ${COLOR_THEMES[p.color] ? COLOR_THEMES[p.color].bg : ""}`} 
+                            style={!COLOR_THEMES[p.color] ? { backgroundColor: p.color } : {}}
+                          />
                           <span className={`text-xs font-medium text-zinc-650 dark:text-zinc-300`}>
                             {p.username}
                           </span>
                         </div>
                         {isTurn && (
-                          <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md ${COLOR_THEMES[p.color].bg} text-white animate-pulse`}>
+                          <span 
+                            className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md text-white animate-pulse ${COLOR_THEMES[p.color] ? COLOR_THEMES[p.color].bg : ""}`}
+                            style={!COLOR_THEMES[p.color] ? { backgroundColor: p.color } : {}}
+                          >
                             Turn
                           </span>
                         )}

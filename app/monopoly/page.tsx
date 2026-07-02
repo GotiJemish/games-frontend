@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Monitor, Globe, Sparkles, Building2, AlertCircle, ArrowLeft } from "lucide-react";
-import api from "@/lib/axios";
+import { useGameConfig } from "@/lib/use-game-config";
 import { Button } from "../_components/button";
 import { Card } from "../_components/card";
 import { GameGate } from "../_components/game-gate";
@@ -38,15 +38,7 @@ export default function MonopolyLobby() {
     }
   ];
 
-  const [config, setConfig] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get("/admin/configs/monopoly")
-      .then(res => setConfig(res.data))
-      .catch(err => console.error("Error loading monopoly config:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  const { config, loading } = useGameConfig("monopoly");
 
   const visibleModes = modes.filter(mode => {
     if (!config) return true;
